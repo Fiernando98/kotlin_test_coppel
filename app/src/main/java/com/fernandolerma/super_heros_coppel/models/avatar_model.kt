@@ -1,20 +1,20 @@
 package com.fernandolerma.super_heros_coppel.models
 
-class AvatarModel(title: String?, imagePath: String?) {
-    private var title: String?
+class AvatarModel(name: String?, imagePath: String?) {
+    private var name: String?
     private var imagePath: String?
 
     init {
-        this.title = title!!
+        this.name = name!!
         this.imagePath = imagePath!!
     }
 
-    fun getTitle(): String? {
-        return title
+    fun getName(): String? {
+        return name
     }
 
-    fun setTitle(title: String?) {
-        this.title = title!!
+    fun setName(name: String?) {
+        this.name = name!!
     }
 
     fun getImagePath(): String? {

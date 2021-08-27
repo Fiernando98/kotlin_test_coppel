@@ -3,7 +3,9 @@ package com.fernandolerma.super_heros_coppel
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -11,8 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.fernandolerma.super_heros_coppel.adapters.AvatarsBoxAdapter
 import com.fernandolerma.super_heros_coppel.adapters.AvatarsListAdapter
+import com.fernandolerma.super_heros_coppel.interfaces.CountryService
 import com.fernandolerma.super_heros_coppel.models.AvatarModel
+import com.fernandolerma.super_heros_coppel.models.CountryModel
 import com.fernandolerma.super_heros_coppel.pages.VisualizeItem
+import com.fernandolerma.super_heros_coppel.services.CountryServiceBuilder
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,12 +46,14 @@ class MainActivity : AppCompatActivity() {
             avatarsBoxAdapter.filter.filter(text)
             avatarsListAdapter.filter.filter(text)
         }
+
+        loadCountries()
     }
 
     private fun prepareBoxList() {
         avatarsBoxAdapter = AvatarsBoxAdapter(avatarsList, this) {
             val intent = Intent(this, VisualizeItem::class.java)
-            intent.putExtra("name", it.getTitle())
+            intent.putExtra("name", it.getName())
             intent.putExtra("imagePath", it.getImagePath())
             startActivity(intent)
         }
@@ -57,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     private fun prepareList() {
         avatarsListAdapter = AvatarsListAdapter(avatarsList, this) {
             val intent = Intent(this, VisualizeItem::class.java)
-            intent.putExtra("name", it.getTitle())
+            intent.putExtra("name", it.getName())
             intent.putExtra("imagePath", it.getImagePath())
             startActivity(intent)
         }
@@ -96,5 +106,48 @@ class MainActivity : AppCompatActivity() {
         )
         avatarsBoxAdapter.notifyDataSetChanged()
         avatarsListAdapter.notifyDataSetChanged()
+    }
+
+    private fun getHeaderMap(): Map<String, String> {
+        val headerMap = mutableMapOf<String, String>()
+        headerMap["Content-type"] = "application/json"
+        return headerMap
+    }
+
+    private fun loadCountries() {
+        val destinationService = CountryServiceBuilder.buildService(CountryService::class.java)
+        val requestCall = destinationService.getCountryList(getHeaderMap())
+        requestCall.enqueue(object : Callback<List<CountryModel>> {
+            override fun onResponse(
+                call: Call<List<CountryModel>>,
+                response: Response<List<CountryModel>>
+            ) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "${response.body()}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                if (response.isSuccessful) {
+                    val countryList = response.body()!!
+                    Log.d("Response", "countrylist size : ${countryList.size}")
+                    /*country_recycler.apply {
+                        setHasFixedSize(true)
+                        layoutManager = GridLayoutManager(this@MainActivity, 2)
+                        adapter = CountriesAdapter(response.body()!!)
+                    }*/
+                } else {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Error: ${response.message()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<CountryModel>>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: $t", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        })
     }
 }

@@ -35,7 +35,7 @@ internal class AvatarsBoxAdapter(
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val avatar = itemsFiltered[position]
-        holder.name.text = avatar.getTitle()
+        holder.name.text = avatar.getName()
         Glide.with(context).load(Uri.parse(avatar.getImagePath())).into(holder.image)
         holder.llyAvatarBoxItem.setOnClickListener {
             onTap(avatar)
@@ -53,7 +53,7 @@ internal class AvatarsBoxAdapter(
                 if (charString.isEmpty()) itemsFiltered = avatarsList else {
                     val filteredList = ArrayList<AvatarModel>()
                     avatarsList
-                        .filter { (it.getTitle()?.lowercase()!!.contains(constraint!!)) }
+                        .filter { (it.getName()?.lowercase()!!.contains(constraint!!)) }
                         .forEach { filteredList.add(it) }
                     itemsFiltered = filteredList
 
