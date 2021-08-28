@@ -10,15 +10,15 @@ import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.fernandolerma.super_heros_coppel.R
-import com.fernandolerma.super_heros_coppel.models.AvatarModel
+import com.fernandolerma.super_heros_coppel.models.HeroesModel
 
 internal class AvatarsListAdapter(
-    private var avatarsList: ArrayList<AvatarModel>,
+    private var itemsList: ArrayList<HeroesModel>,
     private var context: Context,
-    private var onTap: (AvatarModel) -> Unit
+    private var onTap: (HeroesModel) -> Unit
 ) :
     RecyclerView.Adapter<AvatarsListAdapter.MyViewHolder>(), Filterable {
-    var itemsFiltered: ArrayList<AvatarModel> = avatarsList
+    var itemsFiltered: ArrayList<HeroesModel> = itemsList
 
     internal inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val llyAvatarItemList: LinearLayout = view.findViewById(R.id.llyAvatarItemList)
@@ -34,11 +34,11 @@ internal class AvatarsListAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val avatar = itemsFiltered[position]
-        holder.name.text = avatar.getName()
-        Glide.with(context).load(Uri.parse(avatar.getImagePath())).into(holder.image)
+        val item = itemsFiltered[position]
+        holder.name.text = item.name
+        Glide.with(context).load(Uri.parse(item.images.md)).into(holder.image)
         holder.llyAvatarItemList.setOnClickListener {
-            onTap(avatar)
+            onTap(item)
         }
     }
 
@@ -50,10 +50,10 @@ internal class AvatarsListAdapter(
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charString = constraint?.toString() ?: ""
-                if (charString.isEmpty()) itemsFiltered = avatarsList else {
-                    val filteredList = ArrayList<AvatarModel>()
-                    avatarsList
-                        .filter { (it.getName()?.lowercase()!!.contains(constraint!!)) }
+                if (charString.isEmpty()) itemsFiltered = itemsList else {
+                    val filteredList = ArrayList<HeroesModel>()
+                    itemsList
+                        .filter { (it.name.lowercase().contains(constraint!!)) }
                         .forEach { filteredList.add(it) }
                     itemsFiltered = filteredList
 
@@ -65,7 +65,7 @@ internal class AvatarsListAdapter(
                 itemsFiltered = if (results?.values == null)
                     ArrayList()
                 else
-                    results.values as ArrayList<AvatarModel>
+                    results.values as ArrayList<HeroesModel>
                 notifyDataSetChanged()
             }
         }
